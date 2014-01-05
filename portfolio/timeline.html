@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Annotated Timeline</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="wrapper">
+<div id="content">
+<div id="topmenu"><ul>
+   <li><a href='index.html'><span>Home</span></a></li>
+    <li><a href='restaurants.html'><span>Dashboard</span></a></li>
+   <li><a href='dotplot.html'><span>Dotplot</span></a></li>
+   <li class='active '><a href='#'><span>Treemap</span></a></li>
+   <li><a href='motion.html'><span>Motion Chart</span></a></li>
+   <li><a href='geochart.html'><span>Geo Chart</span></a></li>
+   <li><a href='timeline.html'><span>Timeline</span></a></li>
+   <li><a href='appendix.html'><span>Appendix</span></a></li>
+</ul></div>
+<div id="intro">
+<h1 class="title">Annotated Timeline Demo</h1>
+</div>
+<div id="topcontent">
+<h2>Performance By by Deal Source</h2>
+<!-- AnnotatedTimeLine generated in R 2.15.0 by googleVis 0.2.16 package -->
+<!-- Fri Aug 10 11:23:19 2012 -->
+
+
+<!-- jsHeader -->
+<script type="text/javascript" src="http://www.google.com/jsapi">
+</script>
+<script type="text/javascript">
+
+
+// jsData 
+function gvisDataAnnotatedTimeLineID1914494521b0 ()
+{
+  var data = new google.visualization.DataTable();
+  var datajson =
+[
+ [
+ new Date(2012,3,23),
+       0.41,
+null,
+null,
+       0.19,
+null,
+null 
+],
+[
+ new Date(2012,3,30),
+       0.08,
+null,
+null,
+       0.23,
+null,
+null 
+],
+[
+ new Date(2012,4,7),
+       0.28,
+null,
+null,
+       0.23,
+null,
+null 
+],
+[
+ new Date(2012,4,14),
+       0.53,
+null,
+null,
+       0.22,
+null,
+null 
+],
+[
+ new Date(2012,4,21),
+       0.45,
+null,
+null,
+       0.19,
+null,
+null 
+],
+[
+ new Date(2012,4,28),
+       0.67,
+null,
+null,
+       0.17,
+null,
+null 
+],
+[
+ new Date(2012,5,4),
+       0.31,
+"Major Change",
+"Changed reporting metrics",
+       0.13,
+null,
+null 
+],
+[
+ new Date(2012,5,11),
+       0.31,
+null,
+null,
+       0.18,
+null,
+null 
+],
+[
+ new Date(2012,5,18),
+       0.27,
+null,
+null,
+       0.18,
+null,
+null 
+],
+[
+ new Date(2012,5,25),
+       0.33,
+null,
+null,
+       0.14,
+null,
+null 
+],
+[
+ new Date(2012,6,2),
+       0.37,
+null,
+null,
+       0.11,
+null,
+null 
+],
+[
+ new Date(2012,6,9),
+       0.37,
+null,
+null,
+       0.18,
+null,
+null 
+],
+[
+ new Date(2012,6,16),
+       0.47,
+null,
+null,
+       0.16,
+null,
+null 
+],
+[
+ new Date(2012,6,23),
+       0.58,
+null,
+null,
+       0.12,
+"Leadership Change",
+"Change in internal leadership" 
+],
+[
+ new Date(2012,6,30),
+       0.59,
+"Classification change",
+"Last week before classifications modified",
+       0.18,
+null,
+null 
+] 
+];
+data.addColumn('date','date');
+data.addColumn('number','Direct');
+data.addColumn('string','title.Direct');
+data.addColumn('string','annotation.Direct');
+data.addColumn('number','3rd Party');
+data.addColumn('string','title.3rd Party');
+data.addColumn('string','annotation.3rd Party');
+data.addRows(datajson);
+return(data);
+}
+
+
+// jsDrawChart
+function drawChartAnnotatedTimeLineID1914494521b0() {
+  var data = gvisDataAnnotatedTimeLineID1914494521b0();
+  var options = {};
+options["width"] =    900;
+options["height"] =    350;
+options["annotationsWidth"] =     35;
+options["displayAnnotations"] = true;
+options["colors"] = ['#FF6600','#33ccff'];
+
+     var chart = new google.visualization.AnnotatedTimeLine(
+       document.getElementById('AnnotatedTimeLineID1914494521b0')
+     );
+     chart.draw(data,options);
+    
+
+}
+  
+
+
+// jsDisplayChart 
+function displayChartAnnotatedTimeLineID1914494521b0()
+{
+  google.load("visualization", "1", { packages:["annotatedtimeline"] }); 
+  google.setOnLoadCallback(drawChartAnnotatedTimeLineID1914494521b0);
+}
+
+
+// jsChart 
+displayChartAnnotatedTimeLineID1914494521b0()
+
+
+<!-- jsFooter -->  
+//-->
+</script>
+
+
+<!-- divChart -->
+  
+<div id="AnnotatedTimeLineID1914494521b0"
+  style="width: 900px; height: 350px;">
+</div>
+<div class="description">
+<p><span style="font-weight:bold">Viz Type: </span>Annotated Timeline</br>
+<span style="font-weight:bold">Data: </span>Dummy Data</br>
+<span style="font-weight:bold">Show Me: </span>What is causing changes week over week.</br>
+<span style="font-weight:bold">Description: </span>A timeline showing performance by source. Hover over the lines to see exact values. Drag the scroll bar or select the zoom level </br>
+<span style="font-weight:bold">Visualization Justification: </span>An annotated timeline is an interactive update to the classic timeline chart. In addition to being familiar and easy to read, this timeline also includes annotations to track the impact of changes on performance. The annotations assist in tracking how changes and events actually effected deal performance, if at all.</br>
+</p></div></div>
+<div id="pagenav">
+<a href="appendix.html">Appendix</a>
+</div>
+</div>
+</div>
+</body>
+</html>

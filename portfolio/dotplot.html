@@ -1,0 +1,917 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dot Plot Demo</title>
+    <script src="script/d3.v2.min.js"></script>
+	<script type="text/javascript" src="script/tooltip.js"></script>
+    <script type="text/javascript" src="script/smalltip.js"></script>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="wrapper">
+<div id="content">
+<div id="intro">
+<h1 class="title">Dotplot Demo</h1>
+</div>
+<div id="topcontent">
+<div id="dotplot">
+<h2>Comparison Accross Categories</h2>
+<script type="text/javascript">
+    d3.csv("data/conceptperf.csv", function (data) {
+        var samp_size = 0; 
+        var val_array = new Array(),
+         cat_array = new Array(),
+         met_array = new Array(),
+		 notmet_array = new Array(),
+         cta_array = new Array(),
+         nca_array = new Array();
+
+        /* Read CSV file: first row =>  category,met_rpm,cta_rpm,gini  */
+        sampsize = data.length;
+
+        for (var i = 0; i < sampsize; i++) {
+            cat_array[i] = data[i].category;
+            met_array[i] = parseFloat(data[i].met_rpm);
+            notmet_array[i] = parseFloat(data[i].notmet_rpm);
+            cta_array[i] = parseFloat(data[i].cta_rpm);
+            nca_array[i] = parseFloat(data[i].nca_rpm);
+
+            val_array[i] = { cat: cat_array[i], met: met_array[i], notmet: notmet_array[i], cta_rpm: cta_array[i], nca: nca_array[i] };
+            //document.write('<p>' + cat_array[i] +  ': ' + val_array[i].cta_rpm + '</p>');
+            //document.write('<p>' + i + '</p>'); 
+        }
+
+
+        var w = 750,
+    h = 600,
+    labelpad = 155,
+    titlepad = 50,
+    leftpad = 0,
+    footnote = 10,
+    p = 10,
+    x = d3.scale.linear().domain([0, 35]).range([0, w - labelpad]),
+    y = d3.scale.linear().domain([0, cat_array.length]).range([0, h - titlepad - footnote])
+        z = d3.scale.linear().domain([0, cat_array.length]).range([0, 35]);
+
+        var colors = ["#0571B0", "#88B7DD", "#BABABA", "#D67E41"];
+
+
+        var svg = d3.select("#dotplot").append("svg")
+     .attr("class", "chart")
+     .attr("width", w + 2 * p)
+     .attr("height", h + 2 * p);
+
+
+        // ---------------------------------------------------------
+        // Draw two lines across, for each label
+        //   "fake" it with a rectangle
+        // ---------------------------------------------------------
+        // Add lines
+        var bars = svg.selectAll("svg")
+     .data(val_array)
+   .enter().append("svg:rect")
+     .attr("fill", "white")
+     .attr("stroke", "lightgrey")
+     .attr("x", labelpad)
+     .attr("y", function (d, i) { return titlepad + y(i); })
+     .attr("width", w - labelpad - leftpad)
+     .attr("height", 4);
+
+        // ---------------------------------------------------------
+        // Add circles/markers
+        // ---------------------------------------------------------
+        // Met RPM
+        var circle = svg.selectAll("circle")
+     .data(val_array)
+     .enter().append("svg:circle")
+     .attr("fill", colors[0])
+     .attr("stroke", colors[2])
+     .attr("stroke-width", 0)
+     .attr("cx", labelpad + 0) //150 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", ".8")
+     .attr("r", 12)
+        //.on("mouseover", function(){d3.select(this).style("fill-opacity", "1").attr("r", 15);})
+        //.on("mouseout", function(){d3.select(this).style("fill-opacity", ".8").attr("r", 12);})
+	 .call(d3.helper.tooltip(function (d, i) { return "Value: " + d.met; }));
+
+        circle
+	 .transition()
+     .attr("cx", function (d) { return labelpad + x(d.met); })
+	 .duration(2000);
+
+        // Not Met RPM
+        var rules = svg.selectAll("g.rule")
+   .data(notmet_array)
+  .enter().append("svg:g")
+    .attr("class", "rule");
+
+        rules.append("svg:circle")
+     .attr("fill", colors[1])
+     .attr("stroke", colors[0])
+     .attr("stroke-width", 0)
+     .attr("cx", labelpad + 0) //130 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0.8")
+     .attr("r", 12)
+	 .call(d3.helper.tooltip(function (d, i) { return "Value: " + d; }))
+	 .transition()
+     .attr("cx", function (d, i) { return labelpad + x(d); })
+	 .duration(2000)
+	 .delay(0);
+
+
+        // 3rd Party Sales RPM
+        var avoid = svg.selectAll("g.rule")
+   .data(cta_array)
+  .enter().append("svg:g")
+    .attr("class", "rule");
+
+        rules.append("svg:circle")
+     .attr("fill", colors[3])
+     .attr("stroke", colors[1])
+     .attr("stroke-width", 0)
+     .attr("cx", labelpad + 0) //130 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0.8")
+     .attr("r", 12)
+	 .call(d3.helper.tooltip(function (d, i) { return "Value: " + d; }))
+        //	 .on("mouseover", function(){d3.select(this).style("fill-opacity", "1").attr("r", 15);})
+        //     .on("mouseout", function(){d3.select(this).style("fill-opacity", ".8").attr("r", 12);})
+	 .transition()
+     .attr("cx", function (d, i) { return labelpad + x(d); })
+	 .duration(2000)
+	 .delay(0);
+
+        // Online RPM
+        var noconcept = svg.selectAll("g.rule")
+   .data(nca_array)
+  .enter().append("svg:g")
+    .attr("class", "rule");
+
+        rules.append("svg:circle")
+     .attr("fill", colors[2])
+     .attr("stroke", colors[1])
+     .attr("stroke-width", 0)
+     .attr("cx", labelpad + 0) //130 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0.8")
+     .attr("r", 12)
+	 .call(d3.helper.tooltip(function (d, i) { return "Value: " + d; }))
+        //	 .on("mouseover", function(){d3.select(this).style("fill-opacity", "1").attr("r", 15);})
+        //     .on("mouseout", function(){d3.select(this).style("fill-opacity", ".8").attr("r", 12);})
+	 .transition()
+     .attr("cx", function (d, i) { return labelpad + x(d); })
+	 .duration(2000)
+	 .delay(0);
+
+        // ---------------------------------------------------------
+        // Category Labels
+        // ---------------------------------------------------------
+        // category labels
+        rules.append("svg:text")
+   .attr("x", 0)
+   .attr("y", function (d, i) { return 6 + titlepad + y(i); })
+   .text(function (d, i) { return cat_array[i]; });
+
+        // ---------------------------------------------------------
+        // Add CUSTOM Grid + tick labels
+        // mimick: http://www.economist.com/node/18587127
+        // ---------------------------------------------------------
+        rules.append("svg:line")
+   .attr("x1", function (d, i) { return Math.min(labelpad + i * (w - labelpad - leftpad) / 7, w - leftpad); })
+   .attr("y1", titlepad - p / 2)
+   .attr("x2", function (d, i) { return Math.min(labelpad + i * (w - labelpad - leftpad) / 7, w - leftpad); })
+   .attr("y2", h - footnote - 3 * p / 2)
+   .attr("stroke-width", 3)
+   .attr("stroke-opacity", .5);
+
+        rules.append("svg:text")
+   .attr("x", function (d, i) { return Math.min(labelpad + i * (w - labelpad - leftpad) / 7, w - leftpad) - 6; })
+   .attr("y", h - footnote - p / 2)
+   .text(function (d, i) { return Math.min(5 * i, 35); });
+
+
+        // ---------------------------------------------------------
+        // Title, Legend, Label
+        // ---------------------------------------------------------
+        // Title
+        svg.append("svg:text")
+   .attr("x", 0)
+   .attr("y", 15)
+   .text("");
+
+        // Legend: Direct Sales
+        svg.append("svg:circle")
+   .attr("fill", colors[0])
+   .attr("stroke", colors[0])
+   .attr("stroke-width", 0)
+   .attr("cx", p)
+   .attr("cy", p)
+   .style("fill-opacity", ".8")
+   .attr("r", 9)
+   .on("mousedown", sortMetRPM);
+        svg.append("svg:text")
+   .attr("x", 2 * p)
+   .attr("y", 5 + p)
+   .text("Direct Sales")
+   .on("mousedown", sortMetRPM);
+
+        function sortMetRPM() {
+            d3.selectAll("circle")
+    .transition()
+	.attr("r", 20)
+        };
+
+        // Legend: Agency Sales
+        svg.append("svg:circle")
+   .attr("fill", colors[1])
+   .attr("stroke", colors[2])
+   .attr("stroke-width", 0)
+   .attr("cx", 10 * p)
+   .attr("cy", p)
+   .style("fill-opacity", ".8")
+   .attr("r", 9);
+        svg.append("svg:text")
+   .attr("x", 11 * p)
+   .attr("y", 5 + p)
+   .text("Agency Sales");
+
+        // Legend: 3rd Party Sales
+        svg.append("svg:circle")
+   .attr("fill", colors[3])
+   .attr("stroke", colors[2])
+   .attr("stroke-width", 0)
+   .attr("cx", 21 * p)
+   .attr("cy", p)
+   .style("fill-opacity", ".8")
+   .attr("r", 9);
+        svg.append("svg:text")
+   .attr("x", 22 * p)
+   .attr("y", 5 + p)
+   .text("3rd Party Sales");
+
+        // Legend: Online
+        svg.append("svg:circle")
+   .attr("fill", colors[2])
+   .attr("stroke", colors[2])
+   .attr("stroke-width", 0)
+   .attr("cx", 32 * p)
+   .attr("cy", p)
+   .style("fill-opacity", ".8")
+   .attr("r", 9);
+        svg.append("svg:text")
+   .attr("x", 33 * p)
+   .attr("y", 5 + p)
+   .text("Online");
+
+    });
+</script>
+</div>
+<div id="dotplots">
+<h2>Dotplot Panel Charts</h2>
+<div id="miniplot1">
+<script type="text/javascript">
+    d3.csv("data/conceptperfnotmet.csv", function (data) {
+        var samp_size = 0;
+        var val_array = new Array(),
+         cat_array = new Array(),
+         met_array = new Array(),
+		 notmet_array = new Array(),
+         cta_array = new Array(),
+         nca_array = new Array();
+
+        /* Read CSV file: first row =>  category,met_rpm,cta_rpm,gini  */
+        sampsize = data.length;
+
+        for (var i = 0; i < sampsize; i++) {
+            cat_array[i] = data[i].category;
+            met_array[i] = parseFloat(data[i].met_rpm);
+            notmet_array[i] = parseFloat(data[i].notmet_rpm);
+            cta_array[i] = parseFloat(data[i].cta_rpm);
+            nca_array[i] = parseFloat(data[i].nca_rpm);
+
+            val_array[i] = { cat: cat_array[i], met: met_array[i], notmet: notmet_array[i], cta_rpm: cta_array[i], nca: nca_array[i] };
+            //document.write('<p>' + cat_array[i] +  ': ' + val_array[i].cta_rpm + '</p>');
+            //document.write('<p>' + i + '</p>'); 
+        }
+
+        var w = 750 / 2,
+    h = 600 / 2,
+    labelpad = 155,
+    titlepad = 50,
+    leftpad = 0,
+    footnote = 10,
+    p = 10,
+    x = d3.scale.linear().domain([0, 35]).range([0, w - labelpad]),
+    y = d3.scale.linear().domain([0, cat_array.length]).range([0, h - titlepad - footnote])
+        z = d3.scale.linear().domain([0, cat_array.length]).range([0, 35]);
+
+        var colors = ["#0571B0", "#88B7DD", "#BABABA", "#D67E41"];
+
+
+        var svg = d3.select("#miniplot1").append("svg")
+     .attr("class", "chart")
+     .attr("width", w + 2 * p)
+     .attr("height", h + 2 * p);
+
+
+        // ---------------------------------------------------------
+        // Draw two lines across, for each label
+        //   "fake" it with a rectangle
+        // ---------------------------------------------------------
+        // Add lines
+        var bars = svg.selectAll("svg")
+     .data(val_array)
+   .enter().append("svg:rect")
+     .attr("fill", "white")
+     .attr("stroke", "lightgrey")
+     .attr("x", labelpad)
+     .attr("y", function (d, i) { return titlepad + y(i); })
+     .attr("width", w - labelpad - leftpad)
+     .attr("height", 4);
+
+        // ---------------------------------------------------------
+        // Add circles/markers
+        // ---------------------------------------------------------
+        // Met RPM
+        var circle = svg.selectAll("circle")
+     .data(val_array)
+     .enter().append("svg:circle")
+     .attr("fill", colors[0])
+     .attr("stroke", colors[2])
+     .attr("stroke-width", 0)
+     .attr("cx", function (d) { return labelpad + x(d.met); }) //150 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0")
+     .attr("r", 12 / 2)
+        //.on("mouseover", function(){d3.select(this).style("fill-opacity", "1").attr("r", 15);})
+        //.on("mouseout", function(){d3.select(this).style("fill-opacity", ".8").attr("r", 12);})
+	 .call(d3.helper.smalltip(function (d, i) { return "Value: " + d.met; }));
+
+        circle
+	 .transition()
+     .style("fill-opacity", ".8")
+	 .duration(1500);
+
+        // Not Met RPM
+        var rules = svg.selectAll("g.rule")
+   .data(notmet_array)
+  .enter().append("svg:g")
+    .attr("class", "rule");
+
+        rules.append("svg:circle")
+     .attr("fill", colors[1])
+     .attr("stroke", colors[0])
+     .attr("stroke-width", 1)
+     .attr("cx", function (d, i) { return labelpad + x(d); }) //130 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0")
+     .attr("r", 12 / 2)
+	 .call(d3.helper.smalltip(function (d, i) { return "Value: " + d; }))
+	 .transition()
+     .style("fill-opacity", ".8")
+	 .duration(1500)
+	 .delay(250);
+
+
+        // 3rd Party Sales RPM
+        var avoid = svg.selectAll("g.rule")
+   .data(cta_array)
+  .enter().append("svg:g")
+    .attr("class", "rule");
+
+        rules.append("svg:circle")
+     .attr("fill", colors[3])
+     .attr("stroke", colors[1])
+     .attr("stroke-width", 0)
+     .attr("cx", function (d, i) { return labelpad + x(d); }) //130 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0")
+     .attr("r", 12 / 2)
+	 .call(d3.helper.smalltip(function (d, i) { return "Value: " + d; }))
+        //	 .on("mouseover", function(){d3.select(this).style("fill-opacity", "1").attr("r", 15);})
+        //     .on("mouseout", function(){d3.select(this).style("fill-opacity", ".8").attr("r", 12);})
+	 .transition()
+     .style("fill-opacity", ".8")
+	 .duration(1500)
+	 .delay(500);
+
+        // Online RPM
+        var noconcept = svg.selectAll("g.rule")
+   .data(nca_array)
+  .enter().append("svg:g")
+    .attr("class", "rule");
+
+        rules.append("svg:circle")
+     .attr("fill", colors[2])
+     .attr("stroke", colors[1])
+     .attr("stroke-width", 0)
+     .attr("cx", function (d, i) { return labelpad + x(d); }) //130 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0")
+     .attr("r", 12 / 2)
+	 .call(d3.helper.smalltip(function (d, i) { return "Value: " + d; }))
+        //	 .on("mouseover", function(){d3.select(this).style("fill-opacity", "1").attr("r", 15);})
+        //     .on("mouseout", function(){d3.select(this).style("fill-opacity", ".8").attr("r", 12);})
+	 .transition()
+     .style("fill-opacity", ".8")
+	 .duration(1500)
+	 .delay(750);
+
+        // ---------------------------------------------------------
+        // Category Labels
+        // ---------------------------------------------------------
+        // category labels
+        rules.append("svg:text")
+   .attr("x", 0)
+   .attr("y", function (d, i) { return 6 + titlepad + y(i); })
+   .text(function (d, i) { return cat_array[i]; });
+
+        // ---------------------------------------------------------
+        // Add CUSTOM Grid + tick labels
+        // mimick: http://www.economist.com/node/18587127
+        // ---------------------------------------------------------
+        rules.append("svg:line")
+   .attr("x1", function (d, i) { return Math.min(labelpad + i * (w - labelpad - leftpad) / 7, w - leftpad); })
+   .attr("y1", titlepad - p / 2)
+   .attr("x2", function (d, i) { return Math.min(labelpad + i * (w - labelpad - leftpad) / 7, w - leftpad); })
+   .attr("y2", h - footnote - 3 * p / 2)
+   .attr("stroke-width", 3)
+   .attr("stroke-opacity", .5);
+
+        rules.append("svg:text")
+   .attr("x", function (d, i) { return Math.min(labelpad + i * (w - labelpad - leftpad) / 7, w - leftpad) - 6; })
+   .attr("y", h - footnote - p / 2)
+   .text(function (d, i) { return Math.min(5 * i, 35); });
+
+
+        // ---------------------------------------------------------
+        // Title, Legend, Label
+        // ---------------------------------------------------------
+        // Title
+        svg.append("svg:text")
+   .attr("x", 0)
+   .attr("y", 35)
+   .text("Agency Sales")
+   .attr("fill", colors[0])
+   .attr("font-size", 14)
+   .style("font-weight", "bold");
+
+        // Legend: Direct Sales
+        svg.append("svg:circle")
+   .attr("fill", colors[0])
+   .attr("stroke", colors[0])
+   .attr("stroke-width", 0)
+   .attr("cx", p)
+   .attr("cy", p)
+   .style("fill-opacity", ".8")
+   .attr("r", 6)
+   .on("mousedown", sortMetRPM);
+        svg.append("svg:text")
+   .attr("x", 2 * p)
+   .attr("y", 5 + p)
+   .text("Direct Sales")
+   .on("mousedown", sortMetRPM);
+
+        function sortMetRPM() {
+            d3.selectAll("circle")
+    .transition()
+	.attr("r", 20)
+        };
+
+        // Legend: Agency Sales
+        svg.append("svg:circle")
+   .attr("fill", colors[1])
+   .attr("stroke", colors[2])
+   .attr("stroke-width", 0)
+   .attr("cx", 10 * p)
+   .attr("cy", p)
+   .style("fill-opacity", ".8")
+   .attr("r", 6);
+        svg.append("svg:text")
+   .attr("x", 11 * p)
+   .attr("y", 5 + p)
+   .text("Agency Sales");
+
+        // Legend: 3rd Party Sales
+        svg.append("svg:circle")
+   .attr("fill", colors[3])
+   .attr("stroke", colors[2])
+   .attr("stroke-width", 0)
+   .attr("cx", 21 * p)
+   .attr("cy", p)
+   .style("fill-opacity", ".8")
+   .attr("r", 6);
+        svg.append("svg:text")
+   .attr("x", 22 * p)
+   .attr("y", 5 + p)
+   .text("3rd Party Sales");
+
+        // Legend: Online
+        svg.append("svg:circle")
+   .attr("fill", colors[2])
+   .attr("stroke", colors[2])
+   .attr("stroke-width", 0)
+   .attr("cx", 32 * p)
+   .attr("cy", p)
+   .style("fill-opacity", ".8")
+   .attr("r", 6);
+        svg.append("svg:text")
+   .attr("x", 33 * p)
+   .attr("y", 5 + p)
+   .text("Online");
+
+    });
+</script>
+</div>
+<div id="miniplot2">
+<script type="text/javascript">
+    d3.csv("data/conceptperfcta.csv", function (data) {
+        var samp_size = 0;
+        var val_array = new Array(),
+         cat_array = new Array(),
+         met_array = new Array(),
+		 notmet_array = new Array(),
+         cta_array = new Array(),
+         nca_array = new Array();
+
+        /* Read CSV file: first row =>  category,met_rpm,cta_rpm,gini  */
+        sampsize = data.length;
+
+        for (var i = 0; i < sampsize; i++) {
+            cat_array[i] = data[i].category;
+            met_array[i] = parseFloat(data[i].met_rpm);
+            notmet_array[i] = parseFloat(data[i].notmet_rpm);
+            cta_array[i] = parseFloat(data[i].cta_rpm);
+            nca_array[i] = parseFloat(data[i].nca_rpm);
+
+            val_array[i] = { cat: cat_array[i], met: met_array[i], notmet: notmet_array[i], cta_rpm: cta_array[i], nca: nca_array[i] };
+            //document.write('<p>' + cat_array[i] +  ': ' + val_array[i].cta_rpm + '</p>');
+            //document.write('<p>' + i + '</p>'); 
+        }
+
+        var w = 750 / 2,
+    h = 600 / 2,
+    labelpad = 155,
+    titlepad = 50,
+    leftpad = 0,
+    footnote = 10,
+    p = 10,
+    x = d3.scale.linear().domain([0, 35]).range([0, w - labelpad]),
+    y = d3.scale.linear().domain([0, cat_array.length]).range([0, h - titlepad - footnote])
+        z = d3.scale.linear().domain([0, cat_array.length]).range([0, 35]);
+
+        var colors = ["#0571B0", "#88B7DD", "#BABABA", "#D67E41"];
+
+
+        var svg = d3.select("#miniplot2").append("svg")
+     .attr("class", "chart")
+     .attr("width", w + 2 * p)
+     .attr("height", h + 2 * p);
+
+
+        // ---------------------------------------------------------
+        // Draw two lines across, for each label
+        //   "fake" it with a rectangle
+        // ---------------------------------------------------------
+        // Add lines
+        var bars = svg.selectAll("svg")
+     .data(val_array)
+   .enter().append("svg:rect")
+     .attr("fill", "white")
+     .attr("stroke", "lightgrey")
+     .attr("x", labelpad)
+     .attr("y", function (d, i) { return titlepad + y(i); })
+     .attr("width", w - labelpad - leftpad)
+     .attr("height", 4);
+
+        // ---------------------------------------------------------
+        // Add circles/markers
+        // ---------------------------------------------------------
+        // Met RPM
+        var circle = svg.selectAll("circle")
+     .data(val_array)
+     .enter().append("svg:circle")
+     .attr("fill", colors[0])
+     .attr("stroke", colors[2])
+     .attr("stroke-width", 0)
+     .attr("cx", function (d) { return labelpad + x(d.met); }) //150 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0")
+     .attr("r", 12 / 2)
+        //.on("mouseover", function(){d3.select(this).style("fill-opacity", "1").attr("r", 15);})
+        //.on("mouseout", function(){d3.select(this).style("fill-opacity", ".8").attr("r", 12);})
+	 .call(d3.helper.smalltip(function (d, i) { return "Value: " + d.met; }));
+
+        circle
+	 .transition()
+     .style("fill-opacity", ".8")
+	 .duration(1500);
+
+        // Not Met RPM
+        var rules = svg.selectAll("g.rule")
+   .data(notmet_array)
+  .enter().append("svg:g")
+    .attr("class", "rule");
+
+        rules.append("svg:circle")
+     .attr("fill", colors[1])
+     .attr("stroke", colors[0])
+     .attr("stroke-width", 0)
+     .attr("cx", function (d, i) { return labelpad + x(d); }) //130 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0")
+     .attr("r", 12 / 2)
+	 .call(d3.helper.smalltip(function (d, i) { return "Value: " + d; }))
+	 .transition()
+     .style("fill-opacity", ".8")
+	 .duration(1500)
+	 .delay(250);
+
+
+        // 3rd Party Sales RPM
+        var avoid = svg.selectAll("g.rule")
+   .data(cta_array)
+  .enter().append("svg:g")
+    .attr("class", "rule");
+
+        rules.append("svg:circle")
+     .attr("fill", colors[3])
+     .attr("stroke", colors[0])
+     .attr("stroke-width", 1)
+     .attr("cx", function (d, i) { return labelpad + x(d); }) //130 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0")
+     .attr("r", 12 / 2)
+	 .call(d3.helper.smalltip(function (d, i) { return "Value: " + d; }))
+        //	 .on("mouseover", function(){d3.select(this).style("fill-opacity", "1").attr("r", 15);})
+        //     .on("mouseout", function(){d3.select(this).style("fill-opacity", ".8").attr("r", 12);})
+	 .transition()
+     .style("fill-opacity", ".8")
+	 .duration(1500)
+	 .delay(500);
+
+        // Online RPM
+        var noconcept = svg.selectAll("g.rule")
+   .data(nca_array)
+  .enter().append("svg:g")
+    .attr("class", "rule");
+
+        rules.append("svg:circle")
+     .attr("fill", colors[2])
+     .attr("stroke", colors[1])
+     .attr("stroke-width", 0)
+     .attr("cx", function (d, i) { return labelpad + x(d); }) //130 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0")
+     .attr("r", 12 / 2)
+	 .call(d3.helper.smalltip(function (d, i) { return "Value: " + d; }))
+        //	 .on("mouseover", function(){d3.select(this).style("fill-opacity", "1").attr("r", 15);})
+        //     .on("mouseout", function(){d3.select(this).style("fill-opacity", ".8").attr("r", 12);})
+	 .transition()
+     .style("fill-opacity", ".8")
+	 .duration(1500)
+	 .delay(750);
+
+        // ---------------------------------------------------------
+        // Category Labels
+        // ---------------------------------------------------------
+        // category labels
+        rules.append("svg:text")
+   .attr("x", 0)
+   .attr("y", function (d, i) { return 6 + titlepad + y(i); })
+   .text(function (d, i) { return cat_array[i]; });
+
+        // ---------------------------------------------------------
+        // Add CUSTOM Grid + tick labels
+        // mimick: http://www.economist.com/node/18587127
+        // ---------------------------------------------------------
+        rules.append("svg:line")
+   .attr("x1", function (d, i) { return Math.min(labelpad + i * (w - labelpad - leftpad) / 7, w - leftpad); })
+   .attr("y1", titlepad - p / 2)
+   .attr("x2", function (d, i) { return Math.min(labelpad + i * (w - labelpad - leftpad) / 7, w - leftpad); })
+   .attr("y2", h - footnote - 3 * p / 2)
+   .attr("stroke-width", 3)
+   .attr("stroke-opacity", .5);
+
+        rules.append("svg:text")
+   .attr("x", function (d, i) { return Math.min(labelpad + i * (w - labelpad - leftpad) / 7, w - leftpad) - 6; })
+   .attr("y", h - footnote - p / 2)
+   .text(function (d, i) { return Math.min(5 * i, 35); });
+
+
+        // ---------------------------------------------------------
+        // Title, Legend, Label
+        // ---------------------------------------------------------
+        // Title
+        svg.append("svg:text")
+   .attr("x", 0)
+   .attr("y", 35)
+   .text("3rd Party Sales")
+   .attr("fill", colors[3])
+   .attr("font-size", 14)
+   .style("font-weight", "bold");
+    });
+</script>
+</div>
+<div id="miniplot3">
+<script type="text/javascript">
+    d3.csv("data/conceptperfnca.csv", function (data) {
+        var samp_size = 0;
+        var val_array = new Array(),
+         cat_array = new Array(),
+         met_array = new Array(),
+		 notmet_array = new Array(),
+         cta_array = new Array(),
+         nca_array = new Array();
+
+        /* Read CSV file: first row =>  category,met_rpm,cta_rpm,gini  */
+        sampsize = data.length;
+
+        for (var i = 0; i < sampsize; i++) {
+            cat_array[i] = data[i].category;
+            met_array[i] = parseFloat(data[i].met_rpm);
+            notmet_array[i] = parseFloat(data[i].notmet_rpm);
+            cta_array[i] = parseFloat(data[i].cta_rpm);
+            nca_array[i] = parseFloat(data[i].nca_rpm);
+
+            val_array[i] = { cat: cat_array[i], met: met_array[i], notmet: notmet_array[i], cta_rpm: cta_array[i], nca: nca_array[i] };
+            //document.write('<p>' + cat_array[i] +  ': ' + val_array[i].cta_rpm + '</p>');
+            //document.write('<p>' + i + '</p>'); 
+        }
+
+        var w = 750 / 2,
+    h = 600 / 2,
+    labelpad = 155,
+    titlepad = 50,
+    leftpad = 0,
+    footnote = 10,
+    p = 10,
+    x = d3.scale.linear().domain([0, 35]).range([0, w - labelpad]),
+    y = d3.scale.linear().domain([0, cat_array.length]).range([0, h - titlepad - footnote])
+        z = d3.scale.linear().domain([0, cat_array.length]).range([0, 35]);
+
+        var colors = ["#0571B0", "#88B7DD", "#BABABA", "#D67E41"];
+
+
+        var svg = d3.select("#miniplot3").append("svg")
+     .attr("class", "chart")
+     .attr("width", w + 2 * p)
+     .attr("height", h + 2 * p);
+
+
+        // ---------------------------------------------------------
+        // Draw two lines across, for each label
+        //   "fake" it with a rectangle
+        // ---------------------------------------------------------
+        // Add lines
+        var bars = svg.selectAll("svg")
+     .data(val_array)
+   .enter().append("svg:rect")
+     .attr("fill", "white")
+     .attr("stroke", "lightgrey")
+     .attr("x", labelpad)
+     .attr("y", function (d, i) { return titlepad + y(i); })
+     .attr("width", w - labelpad - leftpad)
+     .attr("height", 4);
+
+        // ---------------------------------------------------------
+        // Add circles/markers
+        // ---------------------------------------------------------
+        // Met RPM
+        var circle = svg.selectAll("circle")
+     .data(val_array)
+     .enter().append("svg:circle")
+     .attr("fill", colors[0])
+     .attr("stroke", colors[2])
+     .attr("stroke-width", 0)
+     .attr("cx", function (d) { return labelpad + x(d.met); }) //150 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0")
+     .attr("r", 12 / 2)
+        //.on("mouseover", function(){d3.select(this).style("fill-opacity", "1").attr("r", 15);})
+        //.on("mouseout", function(){d3.select(this).style("fill-opacity", ".8").attr("r", 12);})
+	 .call(d3.helper.smalltip(function (d, i) { return "Value: " + d.met; }));
+
+        circle
+	 .transition()
+     .style("fill-opacity", ".8")
+	 .duration(1500);
+
+        // Not Met RPM
+        var rules = svg.selectAll("g.rule")
+   .data(notmet_array)
+  .enter().append("svg:g")
+    .attr("class", "rule");
+
+        rules.append("svg:circle")
+     .attr("fill", colors[1])
+     .attr("stroke", colors[0])
+     .attr("stroke-width", 0)
+     .attr("cx", function (d, i) { return labelpad + x(d); }) //130 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0")
+     .attr("r", 12 / 2)
+	 .call(d3.helper.smalltip(function (d, i) { return "Value: " + d; }))
+	 .transition()
+     .style("fill-opacity", ".8")
+	 .duration(1500)
+	 .delay(250);
+
+
+        // 3rd Party Sales RPM
+        var avoid = svg.selectAll("g.rule")
+   .data(cta_array)
+  .enter().append("svg:g")
+    .attr("class", "rule");
+
+        rules.append("svg:circle")
+     .attr("fill", colors[3])
+     .attr("stroke", colors[0])
+     .attr("stroke-width", 0)
+     .attr("cx", function (d, i) { return labelpad + x(d); }) //130 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0")
+     .attr("r", 12 / 2)
+	 .call(d3.helper.smalltip(function (d, i) { return "Value: " + d; }))
+        //	 .on("mouseover", function(){d3.select(this).style("fill-opacity", "1").attr("r", 15);})
+        //     .on("mouseout", function(){d3.select(this).style("fill-opacity", ".8").attr("r", 12);})
+	 .transition()
+     .style("fill-opacity", ".8")
+	 .duration(1500)
+	 .delay(500);
+
+        // Online RPM
+        var noconcept = svg.selectAll("g.rule")
+   .data(nca_array)
+  .enter().append("svg:g")
+    .attr("class", "rule");
+
+        rules.append("svg:circle")
+     .attr("fill", colors[2])
+     .attr("stroke", colors[0])
+     .attr("stroke-width", 1)
+     .attr("cx", function (d, i) { return labelpad + x(d); }) //130 + labelpad)
+     .attr("cy", function (d, i) { return titlepad + y(i) + 2; })
+	 .style("fill-opacity", "0")
+     .attr("r", 12 / 2)
+	 .call(d3.helper.smalltip(function (d, i) { return "Value: " + d; }))
+        //	 .on("mouseover", function(){d3.select(this).style("fill-opacity", "1").attr("r", 15);})
+        //     .on("mouseout", function(){d3.select(this).style("fill-opacity", ".8").attr("r", 12);})
+	 .transition()
+     .style("fill-opacity", ".8")
+	 .duration(1500)
+	 .delay(750);
+
+        // ---------------------------------------------------------
+        // Category Labels
+        // ---------------------------------------------------------
+        // category labels
+        rules.append("svg:text")
+   .attr("x", 0)
+   .attr("y", function (d, i) { return 6 + titlepad + y(i); })
+   .text(function (d, i) { return cat_array[i]; });
+
+        // ---------------------------------------------------------
+        // Add CUSTOM Grid + tick labels
+        // mimick: http://www.economist.com/node/18587127
+        // ---------------------------------------------------------
+        rules.append("svg:line")
+   .attr("x1", function (d, i) { return Math.min(labelpad + i * (w - labelpad - leftpad) / 7, w - leftpad); })
+   .attr("y1", titlepad - p / 2)
+   .attr("x2", function (d, i) { return Math.min(labelpad + i * (w - labelpad - leftpad) / 7, w - leftpad); })
+   .attr("y2", h - footnote - 3 * p / 2)
+   .attr("stroke-width", 3)
+   .attr("stroke-opacity", .5);
+
+        rules.append("svg:text")
+   .attr("x", function (d, i) { return Math.min(labelpad + i * (w - labelpad - leftpad) / 7, w - leftpad) - 6; })
+   .attr("y", h - footnote - p / 2)
+   .text(function (d, i) { return Math.min(5 * i, 35); });
+
+
+        // ---------------------------------------------------------
+        // Title, Legend, Label
+        // ---------------------------------------------------------
+        // Title
+        svg.append("svg:text")
+   .attr("x", 0)
+   .attr("y", 35)
+   .text("Online")
+   .attr("fill", colors[2])
+   .attr("font-size", 14)
+   .style("font-weight", "bold");
+    });
+</script>
+</div>
+</div>
+</br></br></br>
+</div>
+<div id="pagenav">
+<a href="appendix.html">Next</a>
+</div>
+</div>
+</div>
+</body>
+</html>

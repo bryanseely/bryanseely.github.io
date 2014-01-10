@@ -1,2 +1,5 @@
-bryanseely.github.io
+bryanseely.me
 ====================
+Personal site and resume
+
+www.bryanseely.me

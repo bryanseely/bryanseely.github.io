@@ -35,7 +35,7 @@ z-index: 0;
 -ms-transition: height 50ms cubic-bezier(0.42, 0, 0.58, 1);
 -o-transition: height 50ms cubic-bezier(0.42, 0, 0.58, 1);
 transition: height 500ms cubic-bezier(0.42, 0, 0.58, 1);
-    background-image: url(https://exposure-3.imgix.net/production/posts/21385/cover-photo/cover-1390594058.jpg?w=1280&q=92)
+background-image: url(https://exposure-3.imgix.net/production/posts/21385/cover-photo/cover-1390594058.jpg?w=1280&q=92)
 }
 
 header {

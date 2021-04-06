@@ -1,0 +1,70 @@
+﻿@import url(http://fonts.googleapis.com/css?family=Cuprum);
+@import url(http://fonts.googleapis.com/css?family=Lato);
+
+html
+{
+    background: #a6c6df url('../images/olympics.jpg') no-repeat fixed;
+}
+
+ #content-wrapper
+ {
+    width:100%; 
+	height:100%; 
+}
+
+#about
+{
+    background-color: rgb(224, 224, 224);
+    padding: 10px 30px 20px 20px;
+    width: 403px;
+    margin: 30px auto 5px 20px;
+    text-align: left;
+    background-image: -webkit-gradient(
+        linear, left top, left bottom, 
+        from(rgba(255,255,255,0.78)),
+        to(rgba(230,230,230,0.78)));
+    background-image: -moz-linear-gradient(
+    rgba(255,255,255,0.78) 0%, 
+    rgba(230,230,230,0.78)95%);
+    border-radius: 15px;
+    -moz-box-shadow: 5px 5px 5px #888;
+    -webkit-box-shadow: 5px 5px 5px #888;
+    box-shadow: 5px 5px 5px #888;
+    behavior: url(PIE.htc);
+}
+
+#links
+{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 20px;
+    width: auto;
+    position: relative;
+    background-image: url('../images/none.png');
+}
+
+#links img
+{
+    border-width: 0px;
+    margin-right: 5px;
+    margin-left: 5px;
+    width: 64px;
+    height: 64px;
+    position: relative;
+    background-image: url('../images/none.png');
+    top: 0px;
+    left: 0px;
+}
+
+h1
+{
+    font-size: 120px;
+    font-family: 'Cuprum', Calibri, arial, sans-serif;
+    display: inline;
+    color: #555;
+}
+
+p
+{
+    font-family: 'Lato', Trebuchet MS, arial, sans-serif;
+}
